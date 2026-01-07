@@ -2,9 +2,14 @@ set logscale y
 set title "Residuals"
 set ylabel 'Residual'
 set xlabel 'Iteration'
+while(1){
 plot "< cat log*.*Foam | grep 'Solving for Ux' | cut -d' ' -f9 | tr -d ','" title 'Ux' with lines dt 2,\
 "< cat log*.*Foam | grep 'Solving for Uy' | cut -d' ' -f9 | tr -d ','" title 'Uy' with lines dt 2,\
 "< cat log*.*Foam | grep 'Solving for Uz' | cut -d' ' -f9 | tr -d ','" title 'Uz' with lines dt 2,\
 "< cat log*.*Foam | grep 'Solving for epsilon' | cut -d' ' -f9 | tr -d ','" title 'epsilon' with lines,\
 "< cat log*.*Foam | grep 'Solving for k' | cut -d' ' -f9 | tr -d ','" title 'k' with lines,\
-"< cat log*.*Foam | grep 'Solving for p' | cut -d' ' -f9 | tr -d ','" title 'p' with lines dt 3
+"< cat log*.*Foam | grep 'Solving for p' | awk 'NR % 2 == 1 {print $8}' | tr -d ','" title 'p' with lines dt 3,\
+"< cat log*.*Foam | grep 'Solving for e,' | cut -d' ' -f9 | tr -d ','" title 'e' with lines dt 4
+pause 2
+refresh
+}
