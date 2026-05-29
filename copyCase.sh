@@ -51,6 +51,7 @@ mkdir $nameNewCase
 cp -r $nameOrigCase/0 $nameNewCase/
 cp -r $nameOrigCase/constant $nameNewCase/
 cp -r $nameOrigCase/system $nameNewCase/
+cp -r $nameOrigCase/README $nameNewCase/
 
 cp -r $nameOrigCase/*.pvsm $nameNewCase/
 touch $nameNewCase/$nameNewCase.foam
