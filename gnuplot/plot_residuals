@@ -1,0 +1,74 @@
+# Gnuplot Script that uses Command Line arguments to determine what variables to plot
+# 1: plot or trace 			= plotTrace
+# 2: Turbulence Model 			= turbModel (k-eps, k-omega, ...)
+# 3: Incompressible or compressible	= rho
+# 4: Number of Pressure Correctionse	= pNum
+
+if (!exists("plotTrace")) plotTrace='plot'
+if (!exists("turbModel")) turbModel='k-eps'
+if (!exists("rho")) rho='icomp'
+if (!exists("pNum")) pNum=1
+
+set logscale y
+set title "Simulation Residuals" font "Arial Bold,14"
+set ylabel "Residual" font "Arial Bold, 12"
+set xlabel "Iteration" font "Arial Bold, 12"
+set format y "%.1e"
+set ytics font "Arial, 10"
+set xtics font "Arial, 10"
+set grid
+
+# Grepping Momentum residuals
+Ux="< cat log*.*Foam | grep 'Solving for Ux' | cut -d' ' -f9 | tr -d ','"
+Uy="< cat log*.*Foam | grep 'Solving for Uy' | cut -d' ' -f9 | tr -d ','"
+Uz="< cat log*.*Foam | grep 'Solving for Uz' | cut -d' ' -f9 | tr -d ','"
+
+# Grepping Pressure Residual (--> Check if pressure correctors used)
+if (pNum == 1) {
+	p="< cat log*.*Foam | grep 'Solving for p' | cut -d' ' -f9 | tr -d ','"
+}
+else {
+	p="< cat log*.*Foam | grep 'Solving for p' | awk 'NR % ".sprintf("%d",pNum)." == 1 {print $8}' | tr -d ','"
+}
+
+# Setting up initial plot command
+plotCommand="plot Ux title 'Ux' with lines dt 2, Uy title 'Uy' with lines dt 2, Uz title 'Uz' with lines dt 2, p title 'p' with lines dt 3"
+
+# Adding turbulent variables to plot command
+if (turbModel ne 'lam') {
+	k="< cat log*.*Foam | grep 'Solving for k' | cut -d' ' -f9 | tr -d ','"
+	plotCommand=plotCommand.", k title 'k' with lines"
+	if (turbModel eq 'k-eps') {
+		epsilon="< cat log*.*Foam | grep 'Solving for epsilon' | cut -d' ' -f9 | tr -d ','"
+		plotCommand=plotCommand.", epsilon title 'epsilon' with lines"
+	}
+	if (turbModel eq 'k-omega') {
+		omega="< cat log*.*Foam | grep 'Solving for omega' | cut -d' ' -f9 | tr -d ','"
+		plotCommand=plotCommand.", omega title 'omega' with lines"
+	}
+	if (turbModel eq 'k-eps-phit-f') {
+		epsilon="< cat log*.*Foam | grep 'Solving for epsilon' | cut -d' ' -f9 | tr -d ','"
+		phit="< cat log*.*Foam | grep 'Solving for phit' | cut -d' ' -f9 | tr -d ','"
+		f="< cat log*.*Foam | grep 'Solving for f' | cut -d' ' -f9 | tr -d ','"
+                plotCommand=plotCommand.", epsilon title 'epsilon' with lines, phit title 'phit' with lines, f title 'f' with lines"
+        }
+}
+
+# Adding Energy/Enthalpy to plot command in case of compressibility
+if (rho eq 'comp') {
+	e="< cat log*.*Foam | grep 'Solving for e,' | cut -d' ' -f9 | tr -d ','"
+	plotCommand=plotCommand.", e title 'e' with lines dt 4"
+}
+
+
+# Tracing or plotting the residuals
+if (plotTrace eq 'trace') {
+	while(1) {
+		eval plotCommand
+		pause 2
+		refresh
+	}
+}
+else {
+	eval plotCommand
+}
