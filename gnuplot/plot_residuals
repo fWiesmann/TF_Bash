@@ -3,11 +3,13 @@
 # 2: Turbulence Model 			= turbModel (k-eps, k-omega, ...)
 # 3: Incompressible or compressible	= rho
 # 4: Number of Pressure Correctionse	= pNum
+# 5: Energy or Enthalpy			= eh
 
 if (!exists("plotTrace")) plotTrace='plot'
 if (!exists("turbModel")) turbModel='k-eps'
 if (!exists("rho")) rho='icomp'
 if (!exists("pNum")) pNum=1
+if (!exists("eh")) eh='energy'
 
 set logscale y
 set title "Simulation Residuals" font "Arial Bold,14"
@@ -56,8 +58,15 @@ if (turbModel ne 'lam') {
 
 # Adding Energy/Enthalpy to plot command in case of compressibility
 if (rho eq 'comp') {
-	e="< cat log*.*Foam | grep 'Solving for e,' | cut -d' ' -f9 | tr -d ','"
-	plotCommand=plotCommand.", e title 'e' with lines dt 4"
+	# Check if Energy or Enthalpy is solved for
+	if (eh eq 'energy') {
+		e="< cat log*.*Foam | grep 'Solving for e,' | cut -d' ' -f9 | tr -d ','"
+		plotCommand=plotCommand.", e title 'e' with lines dt 4"
+	}
+	if (eh eq 'enthalpy') {
+                h="< cat log*.*Foam | grep 'Solving for h' | cut -d' ' -f9 | tr -d ','"
+                plotCommand=plotCommand.", h title 'h' with lines dt 4"
+        }
 }
 
 
