@@ -70,6 +70,13 @@ if (rho eq 'comp') {
 }
 
 
+# Adding Time Step Continuity Errors Cumulative to plot
+dt_cont_sumLocal="< cat log*.*Foam | grep 'time step continuity errors' | cut -d' ' -f9 | tr -d ','"
+plotCommand=plotCommand.", dt_cont_sumLocal title 'dt (sum local)' with lines dt 5"
+
+#dt_cont_cum="< cat log*.*Foam | grep 'time step continuity errors' | cut -d' ' -f15 | tr -d ','"
+#plotCommand=plotCommand.", dt_cont_cum title 'dt (cumulative)' with lines dt 6"
+
 # Tracing or plotting the residuals
 if (plotTrace eq 'trace') {
 	while(1) {
