@@ -28,12 +28,14 @@ Uz="< cat log*.*Foam | grep 'Solving for Uz' | cut -d' ' -f9 | tr -d ','"
 # Grepping Pressure Residual (--> Check if pressure correctors used)
 if (pNum == 1) {
 	p="< cat log*.*Foam | grep 'Solving for p' | cut -d' ' -f9 | tr -d ','"
+	dt_cont_sumLocal="< cat log*.*Foam | grep 'time step continuity errors' | cut -d' ' -f9 | tr -d ','"
 }
 else {
 	p="< cat log*.*Foam | grep 'Solving for p' | awk 'NR % ".sprintf("%d",pNum)." == 1 {print $8}' | tr -d ','"
+	dt_cont_sumLocal="< cat log*.*Foam | grep 'time step continuity errors' | awk 'NR % ".sprintf("%d",pNum)." | tr -d ','"
 }
 
-# Setting up initial plot command
+# Setting up initial plot command (Momentum and pressure)
 plotCommand="plot Ux title 'Ux' with lines dt 2, Uy title 'Uy' with lines dt 2, Uz title 'Uz' with lines dt 2, p title 'p' with lines dt 3"
 
 # Adding turbulent variables to plot command
@@ -71,7 +73,6 @@ if (rho eq 'comp') {
 
 
 # Adding Time Step Continuity Errors Cumulative to plot
-dt_cont_sumLocal="< cat log*.*Foam | grep 'time step continuity errors' | cut -d' ' -f9 | tr -d ','"
 plotCommand=plotCommand.", dt_cont_sumLocal title 'dt (sum local)' with lines dt 5"
 
 #dt_cont_cum="< cat log*.*Foam | grep 'time step continuity errors' | cut -d' ' -f15 | tr -d ','"
