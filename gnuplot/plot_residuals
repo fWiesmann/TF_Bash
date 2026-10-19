@@ -32,7 +32,7 @@ if (pNum == 1) {
 }
 else {
 	p="< cat log*.*Foam | grep 'Solving for p' | awk 'NR % ".sprintf("%d",pNum)." == 1 {print $8}' | tr -d ','"
-	dt_cont_sumLocal="< cat log*.*Foam | grep 'time step continuity errors' | awk 'NR % ".sprintf("%d",pNum)." | tr -d ','"
+	dt_cont_sumLocal="< cat log*.*Foam | grep 'time step continuity errors' | awk 'NR % ".sprintf("%d",pNum)." == 1 {print $9}' | tr -d ','"
 }
 
 # Setting up initial plot command (Momentum and pressure)
